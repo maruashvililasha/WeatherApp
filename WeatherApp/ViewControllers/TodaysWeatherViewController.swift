@@ -7,22 +7,37 @@
 
 import UIKit
 import CoreLocation
+import Kingfisher
 
 class TodaysWeatherViewController: UIViewController {
+    
+    @IBOutlet weak var logoImageView: UIImageView!
+    @IBOutlet weak var mainStackView: UIStackView!
+    
+    @IBOutlet weak var mainIconImageView: UIImageView!
+    @IBOutlet weak var locationLabel: UILabel!
+    @IBOutlet weak var temperatureLabel: UILabel!
+    //stats
+    @IBOutlet weak var chanceOfRainLabel: UILabel!
+    @IBOutlet weak var windSpeedLabel: UILabel!
+    @IBOutlet weak var humidityLabel: UILabel!
+    @IBOutlet weak var directionOfSomethingLabel: UILabel!
+    @IBOutlet weak var pressureLabel: UILabel!
     
     var weather: CurrentWeatherResponse? {
         didSet {
             print("Current Weather Updated")
+            self.setupUI()
         }
     }
-    
     private var locationManager : CLLocationManager?
-    
     let weatherApi = WeatherApi()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        mainStackView.alpha = 0
+        logoImageView.alpha = 1
         weatherApi.delegate = self
         self.title = "Today"
         getUserLocation()
@@ -73,9 +88,32 @@ class TodaysWeatherViewController: UIViewController {
         return hasPermission
     }
     
-    deinit {
-        print(self)
-        print("deinit")
+    private func setupUI() {
+        guard let weather = weather else {
+            errorUI()
+            return
+        }
+        mainIconImageView.kf.setImage(with: Util.getIconUrl(icon: weather.weather.first!.icon))
+        locationLabel.text = "\(weather.name), \(weather.sys.country)"
+        temperatureLabel.text = "\(weather.main.temp)° | \(weather.weather.first!.weatherDescription.capitalized)"
+        chanceOfRainLabel.text = "48%" // ეს დეითა ვერ ვნახე :/
+        windSpeedLabel.text = "\(weather.wind.speed) km/h"
+        humidityLabel.text = "\(weather.main.humidity)%"
+        directionOfSomethingLabel.text = "S" // ესეც
+        pressureLabel.text = "\(weather.main.pressure) hPa"
+        if  mainStackView.alpha == 0 {
+            UIView.animate(withDuration: 1) {
+                self.mainStackView.alpha = 1
+                self.logoImageView.alpha = 0
+            }
+        }
+    }
+    
+    private func errorUI() {
+        UIView.animate(withDuration: 1) {
+            self.mainStackView.alpha = 0
+            self.logoImageView.alpha = 1
+        }
     }
     
 }
@@ -97,6 +135,9 @@ extension TodaysWeatherViewController: CLLocationManagerDelegate {
 extension TodaysWeatherViewController: WeatherApiDelegate {
     func todaysWeatherError() {
         Util.prompt(UIViewController: self, title: "oh!", message: "We are having trouble, please try again later")
+        DispatchQueue.main.async {
+            self.errorUI()
+        }
     }
     
     func todaysWeatherSuccess(weather: CurrentWeatherResponse) {

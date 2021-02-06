@@ -30,7 +30,6 @@ class WeatherApi {
         ]
         
         let url = urlBuilder.url!
-        
         let task = session.dataTask(with: url) { data, response, error in
             guard error == nil else {
                 self.delegate?.todaysWeatherError()
