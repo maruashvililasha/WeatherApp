@@ -24,6 +24,10 @@ class TodaysWeatherViewController: UIViewController {
     @IBOutlet weak var directionOfSomethingLabel: UILabel!
     @IBOutlet weak var pressureLabel: UILabel!
     
+    
+    let linkToShare = "Description you want.."
+    let items = [URL(string: "https://github.com/maruashvililasha/WeatherApp")!]
+    
     var weather: CurrentWeatherResponse? {
         didSet {
             print("Current Weather Updated")
@@ -57,7 +61,6 @@ class TodaysWeatherViewController: UIViewController {
     
     private func getUserLocation() {
         locationManager = CLLocationManager()
-        print(CLLocationManager.locationServicesEnabled())
         guard hasLocationPermission() else {
             Util.ask(UIViewController: self, title: "Location services", message: "Location permission is not granted, please grant permission for the app to function. thank you!") {
                 self.locationManager?.requestAlwaysAuthorization()
@@ -114,6 +117,12 @@ class TodaysWeatherViewController: UIViewController {
             self.mainStackView.alpha = 0
             self.logoImageView.alpha = 1
         }
+    }
+    
+    
+    @IBAction func shareButtonDidTap(_ sender: Any) {
+        let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        self.present(ac, animated: true, completion: nil)
     }
     
 }
