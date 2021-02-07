@@ -19,6 +19,7 @@ class ForecastViewController: UIViewController {
             print("Forecast Updated")
             self.orderData {
                 forecastTableView.reloadData()
+                setupUI()
             }
         }
     }
